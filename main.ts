@@ -258,8 +258,8 @@ class SettingsTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Create emergency decrypt file')
-			.setDesc("Creates a markdown file in vault's root folder with all the js code necessary to decrypt your work in the event of " +
-				"an emergency. NOTE: depending on your Obsidian settings, you may not see the file in Obsidian, as it is a .js file.")
+			.setDesc("Creates a javascript file in vault's root folder with all the code necessary to decrypt your work in the event of " +
+				"an emergency. NOTE: depending on your Obsidian settings, you may not see the file in Obsidian, as it is not a markdown file.")
 			.addButton(button => {
 				button.setButtonText("Create file");
 				button.onClick(async () => {
