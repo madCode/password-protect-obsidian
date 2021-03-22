@@ -18,7 +18,7 @@ export default {
     exports: 'default',
     banner,
   },
-  external: ['obsidian'],
+  external: ['obsidian', 'crypto'],
   plugins: [
     typescript(),
     nodeResolve({browser: true}),
