@@ -111,6 +111,22 @@ export default class PasswordPlugin extends Plugin {
 		}
 	}
 
+	registerClearPasswordEvent = () => {
+		this.registerEvent(
+			this.app.workspace.on("quit", () => {
+				if (this.settings.clearPasswordOnExit) {
+					this.settings.password = '';
+					this.saveSettings().then(
+						() => new Notice('Password cleared!')
+					).catch((error) => {
+						new Notice('Error clearing password! Logging error to dev console now.');
+						console.log(error.toString());
+					})
+				}
+			})
+		);
+	};
+
 	async onload() {
 		await this.loadSettings();
 
@@ -128,6 +144,8 @@ export default class PasswordPlugin extends Plugin {
 
 		this.addSettingTab(new SettingsTab(this.app, this));
 
+		this.registerClearPasswordEvent();
+
 		if (this.settings.password.length <= 0 && this.settings.askForPasswordOnLoad) {
 			new CryptModal(this.app, "Add password", "Save", async (password: string) => {
 				this.settings.password = password;
@@ -139,17 +157,6 @@ export default class PasswordPlugin extends Plugin {
 				});
 			}).open();
 		}
-	}
-
-	onunload() {
-		console.log('unloading plugin');
-		this.settings.password = '';
-		this.saveSettings().then(
-			() => new Notice('Password cleared!')
-		).catch((error) => {
-			new Notice('Error clearing password! Logging error to dev console now.');
-			console.log(error.toString());
-		})
 	}
 
 	async loadSettings() {
@@ -229,8 +236,10 @@ class SettingsTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Ask for password on program start')
-			.setDesc('If a password isn\'t set, pop open a modal when Obsidian or the plugin opens so you can input your password.')
+			.setName('Ask for password on program start (WARNING: this stores password in plaintext in settings, as seen above.)')
+			.setDesc('If a password isn\'t set, pop open a modal when Obsidian or the plugin opens so you can input your password.' +
+				' As noted above: this stores the password in plaintext in the settings. This is obviously not secure. However, ' +
+				'you can turn on "Clear password on exit" below to delete the stored password when you close Obsidian.')
 			.addToggle(toggle => toggle.setValue(this.plugin.settings.askForPasswordOnLoad)
 				.onChange(async (value) => {
 					this.plugin.settings.askForPasswordOnLoad = value;
@@ -249,9 +258,8 @@ class SettingsTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Create emergency decrypt file')
-			.setDesc("Creates a markdown file with all the js code necessary to decrypt your work in the event of " +
-				"an emergency. NOTE: depending on your Obsidian settings, you may not see the file in Obsidian, as it is a .js file. " +
-				"But it will be in your vault's root folder. ")
+			.setDesc("Creates a markdown file in vault's root folder with all the js code necessary to decrypt your work in the event of " +
+				"an emergency. NOTE: depending on your Obsidian settings, you may not see the file in Obsidian, as it is a .js file.")
 			.addButton(button => {
 				button.setButtonText("Create file");
 				button.onClick(async () => {
