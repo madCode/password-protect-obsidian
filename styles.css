@@ -1,4 +1,7 @@
-/* Sets all the text color to red! */
-body {
-    color: red;
+.modal-input {
+    width: 70%;
+}
+.modal-submit-button {
+    float: right;
+    margin-left: 20px;
 }
